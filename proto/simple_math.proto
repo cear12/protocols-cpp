@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package protocolscpp;
+
+// Minimal service used by grpc_client_demo.cpp to demonstrate a unary
+// gRPC call end-to-end. protoc + grpc_cpp_plugin generate
+// simple_math.pb.h/.grpc.pb.h from this file at build time (wired into
+// CMakeLists.txt via `protobuf_generate` / `grpc_generate_cpp` when
+// PROTOCOLSCPP_ENABLE_GRPC=ON).
+service SimpleMath {
+    rpc TimesTwo (NumberRequest) returns (NumberResponse);
+}
+
+message NumberRequest {
+    int64 num = 1;
+}
+
+message NumberResponse {
+    int64 num = 1;
+}
