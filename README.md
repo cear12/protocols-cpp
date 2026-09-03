@@ -69,6 +69,21 @@ cmake --build build
 `FetchContent` (it isn't in standard apt repos); expect the first
 configure to take a while.
 
+## Building in Visual Studio
+
+With several independent demo/test executables (some only appearing when
+their optional dependency is found) and no CMakePresets.json, Visual
+Studio's Open Folder / CMake integration has no default startup item
+configured. Pressing **Debug/Run** (not Build) then pops a blocking
+"Select Startup Item" dialog -- easy to mistake for the project failing
+to build, even though **Build > Build All** (Ctrl+Shift+B) succeeds
+regardless of what's selected there. `CMakePresets.json` sets
+`CMAKE_VS_STARTUP_PROJECT` to `tcp_echo_server_demo`, the one target with
+no optional-dependency guard around it, so it's always present and
+Debug/Run works immediately; pick a different target from the dropdown
+next to the Run button to debug any of the others that happen to be
+available.
+
 ## Testing
 
 `protocolscpp_core`'s `TcpEchoServer` is the one class in this repo with
