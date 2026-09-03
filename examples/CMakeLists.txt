@@ -1,0 +1,2 @@
+add_executable(tcp_echo_server_demo tcp_echo_server_demo.cpp)
+target_link_libraries(tcp_echo_server_demo PRIVATE protocolscpp_core)
