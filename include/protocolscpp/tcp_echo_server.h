@@ -27,25 +27,25 @@ public:
 
     // Binds and starts accepting connections on a background thread.
     // Throws std::runtime_error if the socket can't be created/bound.
-    void start();
-    void stop();
+    void Start();
+    void Stop();
 
     // Optional hook invoked (from the background thread) with each
     // received line, mainly so tests can observe what the server saw.
-    void setOnMessage(std::function<void(const std::string&)> callback);
+    void SetOnMessage(std::function<void(const std::string&)> callback);
 
-    std::uint16_t port() const { return port_; }
-    bool running() const { return running_.load(); }
+    std::uint16_t Port() const { return port_; }
+    bool Running() const { return running_.load(); }
 
 private:
-    void acceptLoop();
-    void handleClient(int clientFd);
+    void AcceptLoop();
+    void HandleClient(int client_fd);
 
     std::uint16_t port_;
-    int listenFd_ = -1;
+    int listen_fd_ = -1;
     std::atomic<bool> running_{false};
-    std::thread acceptThread_;
-    std::function<void(const std::string&)> onMessage_;
+    std::thread accept_thread_;
+    std::function<void(const std::string&)> on_message_;
 };
 
 }  // namespace protocolscpp

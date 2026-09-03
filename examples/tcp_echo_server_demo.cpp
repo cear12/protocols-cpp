@@ -18,14 +18,14 @@ int main() {
     using protocolscpp::TcpEchoServer;
 
     TcpEchoServer server(0);
-    server.setOnMessage([](const std::string& msg) { std::cout << "[server] received: " << msg << "\n"; });
-    server.start();
-    std::cout << "Echo server listening on 127.0.0.1:" << server.port() << "\n";
+    server.SetOnMessage([](const std::string& msg) { std::cout << "[server] received: " << msg << "\n"; });
+    server.Start();
+    std::cout << "Echo server listening on 127.0.0.1:" << server.Port() << "\n";
 
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(server.port());
+    addr.sin_port = htons(server.Port());
     inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
     for (int i = 0; i < 50 && connect(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0; ++i) {
         usleep(10000);
@@ -45,6 +45,6 @@ int main() {
     std::cout << "[client] sent:     " << outgoing << "\n";
     std::cout << "[client] received: " << std::string(buf.data(), received) << "\n";
 
-    server.stop();
+    server.Stop();
     return 0;
 }

@@ -16,7 +16,7 @@ using namespace protocolscpp;
 namespace {
 // A tiny synchronous loopback client -- just enough POSIX socket code to
 // exercise TcpEchoServer without pulling in a second library.
-std::string echoOnce(std::uint16_t port, const std::string& message) {
+std::string EchoOnce(std::uint16_t port, const std::string& message) {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     REQUIRE(fd >= 0);
 
@@ -49,51 +49,51 @@ std::string echoOnce(std::uint16_t port, const std::string& message) {
 
 TEST_CASE("TcpEchoServer echoes back exactly what a client sends", "[tcp_echo_server]") {
     TcpEchoServer server(0);  // port 0 = let the OS choose a free port
-    server.start();
-    REQUIRE(server.running());
+    server.Start();
+    REQUIRE(server.Running());
 
-    auto reply = echoOnce(server.port(), "hello, echo server");
+    auto reply = EchoOnce(server.Port(), "hello, echo server");
     REQUIRE(reply == "hello, echo server");
 
-    server.stop();
-    REQUIRE_FALSE(server.running());
+    server.Stop();
+    REQUIRE_FALSE(server.Running());
 }
 
 TEST_CASE("TcpEchoServer invokes the onMessage callback with what it received", "[tcp_echo_server]") {
     TcpEchoServer server(0);
-    std::atomic<int> callCount{0};
-    std::string lastMessage;
-    server.setOnMessage([&](const std::string& msg) {
-        lastMessage = msg;
-        callCount++;
+    std::atomic<int> call_count{0};
+    std::string last_message;
+    server.SetOnMessage([&](const std::string& msg) {
+        last_message = msg;
+        call_count++;
     });
-    server.start();
+    server.Start();
 
-    echoOnce(server.port(), "ping");
-    server.stop();
+    EchoOnce(server.Port(), "ping");
+    server.Stop();
 
-    REQUIRE(callCount.load() == 1);
-    REQUIRE(lastMessage == "ping");
+    REQUIRE(call_count.load() == 1);
+    REQUIRE(last_message == "ping");
 }
 
 TEST_CASE("TcpEchoServer::start is idempotent and stop can be called twice safely", "[tcp_echo_server]") {
     TcpEchoServer server(0);
-    server.start();
-    server.start();  // no-op, must not throw or open a second listener
-    REQUIRE(server.running());
+    server.Start();
+    server.Start();  // no-op, must not throw or open a second listener
+    REQUIRE(server.Running());
 
-    server.stop();
-    server.stop();  // no-op
-    REQUIRE_FALSE(server.running());
+    server.Stop();
+    server.Stop();  // no-op
+    REQUIRE_FALSE(server.Running());
 }
 
 TEST_CASE("TcpEchoServer handles multiple sequential connections", "[tcp_echo_server]") {
     TcpEchoServer server(0);
-    server.start();
+    server.Start();
 
-    REQUIRE(echoOnce(server.port(), "first") == "first");
-    REQUIRE(echoOnce(server.port(), "second") == "second");
-    REQUIRE(echoOnce(server.port(), "third") == "third");
+    REQUIRE(EchoOnce(server.Port(), "first") == "first");
+    REQUIRE(EchoOnce(server.Port(), "second") == "second");
+    REQUIRE(EchoOnce(server.Port(), "third") == "third");
 
-    server.stop();
+    server.Stop();
 }
