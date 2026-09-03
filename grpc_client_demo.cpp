@@ -18,42 +18,45 @@
 namespace protocolscpp {
 
 class SimpleMathClient {
-public:
-    explicit SimpleMathClient(const std::shared_ptr<grpc::Channel>& channel)
-        : stub_(SimpleMath::NewStub(channel)) {}
+ public:
+  explicit SimpleMathClient(const std::shared_ptr<grpc::Channel>& channel)
+      : stub_(SimpleMath::NewStub(channel)) {}
 
-    // Returns the server's answer, or throws std::runtime_error with the
-    // gRPC status message on failure (connection refused, deadline
-    // exceeded, ...).
-    std::int64_t timesTwo(std::int64_t value) {
-        NumberRequest request;
-        request.set_num(value);
+  // Returns the server's answer, or throws std::runtime_error with the
+  // gRPC status message on failure (connection refused, deadline
+  // exceeded, ...).
+  std::int64_t timesTwo(std::int64_t value) {
+    NumberRequest request;
+    request.set_num(value);
 
-        NumberResponse response;
-        grpc::ClientContext context;
-        grpc::Status status = stub_->TimesTwo(&context, request, &response);
+    NumberResponse response;
+    grpc::ClientContext context;
+    grpc::Status status = stub_->TimesTwo(&context, request, &response);
 
-        if (!status.ok()) {
-            throw std::runtime_error("SimpleMath.TimesTwo RPC failed: " + status.error_message());
-        }
-        return response.num();
+    if (!status.ok()) {
+      throw std::runtime_error("SimpleMath.TimesTwo RPC failed: " +
+                               status.error_message());
     }
+    return response.num();
+  }
 
-private:
-    std::unique_ptr<SimpleMath::Stub> stub_;
+ private:
+  std::unique_ptr<SimpleMath::Stub> stub_;
 };
 
 }  // namespace protocolscpp
 
 int main() {
-    auto channel = grpc::CreateChannel("localhost:54321", grpc::InsecureChannelCredentials());
-    protocolscpp::SimpleMathClient client(channel);
+  auto channel = grpc::CreateChannel("localhost:54321",
+                                     grpc::InsecureChannelCredentials());
+  protocolscpp::SimpleMathClient client(channel);
 
-    try {
-        std::cout << "TimesTwo(21) = " << client.timesTwo(21) << "\n";
-    } catch (const std::exception& e) {
-        std::cerr << "RPC failed (expected without a running SimpleMath server): " << e.what() << "\n";
-        return 1;
-    }
-    return 0;
+  try {
+    std::cout << "TimesTwo(21) = " << client.timesTwo(21) << "\n";
+  } catch (const std::exception& e) {
+    std::cerr << "RPC failed (expected without a running SimpleMath server): "
+              << e.what() << "\n";
+    return 1;
+  }
+  return 0;
 }
