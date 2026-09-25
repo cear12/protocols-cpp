@@ -59,12 +59,29 @@ find_package(websocketpp QUIET)
 if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
 endif()
-find_package(Boost QUIET COMPONENTS system)
+find_package(Boost QUIET)
 if(websocketpp_FOUND AND Boost_FOUND)
     add_executable(web_socket_server web_socket_server.cpp)
-    target_compile_definitions(web_socket_server PRIVATE PROTOCOLSCPP_BUILD_STANDALONE_DEMO _WEBSOCKETPP_CPP11_STL_)
+    target_compile_definitions(web_socket_server PRIVATE
+        PROTOCOLSCPP_BUILD_STANDALONE_DEMO
+        _WEBSOCKETPP_CPP11_STL_
+    )
     target_include_directories(web_socket_server PRIVATE ${WEBSOCKETPP_INCLUDE_DIR})
-    target_link_libraries(web_socket_server PRIVATE Threads::Threads Boost::system)
+    target_link_libraries(web_socket_server PRIVATE Threads::Threads)
+    if(TARGET Boost::system)
+        target_link_libraries(web_socket_server PRIVATE Boost::system)
+    elseif(TARGET Boost::headers)
+        # Boost.System is header-only in recent Boost releases and no longer
+        # always exports a separate Boost::system target.
+        target_link_libraries(web_socket_server PRIVATE Boost::headers)
+        target_compile_definitions(web_socket_server PRIVATE
+            BOOST_ERROR_CODE_HEADER_ONLY
+        )
+    else()
+        target_compile_definitions(web_socket_server PRIVATE
+            BOOST_ERROR_CODE_HEADER_ONLY
+        )
+    endif()
 else()
     message(STATUS "protocols-cpp: websocketpp/Boost not found, skipping web_socket_server")
 endif()
