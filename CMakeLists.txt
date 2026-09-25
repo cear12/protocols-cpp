@@ -62,6 +62,14 @@ endif()
 find_package(Boost QUIET)
 if(websocketpp_FOUND AND Boost_FOUND)
     add_executable(web_socket_server web_socket_server.cpp)
+    # Ubuntu's packaged websocketpp still uses syntax rejected by C++20.
+    # Keep the rest of the project on C++20, but build this legacy adapter
+    # with the standard supported by the installed websocketpp headers.
+    set_target_properties(web_socket_server PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+    )
     target_compile_definitions(web_socket_server PRIVATE
         PROTOCOLSCPP_BUILD_STANDALONE_DEMO
         _WEBSOCKETPP_CPP11_STL_
